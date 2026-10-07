@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900">
+<defs>
+<radialGradient id="spot" cx="50%" cy="22%" r="75%"><stop offset="0" stop-color="#3b1e6b"/><stop offset=".55" stop-color="#160c2c"/><stop offset="1" stop-color="#07040f"/></radialGradient>
+<linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c27a3a"/><stop offset="1" stop-color="#6e3d18"/></linearGradient>
+<radialGradient id="ball" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#ffb066"/><stop offset=".55" stop-color="#e2661c"/><stop offset="1" stop-color="#8a3207"/></radialGradient>
+<linearGradient id="teal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2ee6d6"/><stop offset="1" stop-color="#7b3cff"/></linearGradient>
+</defs>
+<rect width="900" height="900" fill="url(#spot)"/>
+<g opacity=".35" stroke="#fff" stroke-width="2">
+<line x1="450" y1="0" x2="120" y2="620"/><line x1="450" y1="0" x2="780" y2="620"/><line x1="450" y1="0" x2="450" y2="620"/>
+</g>
+<path d="M0 600 L900 600 L900 900 L0 900Z" fill="url(#floor)"/>
+<g fill="none" stroke="#f7e6cf" stroke-opacity=".7" stroke-width="6">
+<ellipse cx="450" cy="760" rx="330" ry="90"/><line x1="0" y1="640" x2="900" y2="640"/><ellipse cx="450" cy="760" rx="120" ry="34"/>
+</g>
+<g opacity=".6"><path d="M0 0 L240 0 L0 380Z" fill="#2ee6d6" opacity=".18"/><path d="M900 0 L660 0 L900 380Z" fill="#7b3cff" opacity=".22"/></g>
+<circle cx="450" cy="470" r="210" fill="url(#ball)"/>
+<g fill="none" stroke="#3a1404" stroke-width="10" stroke-linecap="round">
+<path d="M240 470 H660"/><path d="M450 260 V680"/>
+<path d="M300 320 C380 400 380 540 300 620"/><path d="M600 320 C520 400 520 540 600 620"/>
+</g>
+<ellipse cx="450" cy="700" rx="200" ry="26" fill="#000" opacity=".35"/>
+<text x="450" y="150" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="128" fill="#fff" letter-spacing="-2">NBA 2K</text>
+<rect x="300" y="178" width="300" height="10" rx="5" fill="url(#teal)"/>
+<text x="450" y="860" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="34" fill="#fff" letter-spacing="10" opacity=".85">BASKETBALL</text>
+</svg>
