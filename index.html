@@ -1877,6 +1877,44 @@
   .rc-zoom{ position:absolute; inset:0; z-index:40; display:none; align-items:center; justify-content:center; background:rgba(3,5,7,0.92); backdrop-filter:blur(12px); }
   .rc-zoom.on{ display:flex; }
   .rc-zoom img{ max-width:80%; max-height:84%; border-radius:16px; box-shadow:0 30px 80px rgba(0,0,0,0.7); cursor:zoom-out; }
+
+  /* Recent > Hobbies: music feature */
+  .rm-main{ flex:1; padding:30px 34px 34px 0; min-width:0; }
+  .rm-k{ font-size:19px; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,0.55); margin-bottom:14px; }
+  .rm-fan{ position:relative; height:330px; margin-bottom:26px; }
+  .rm-art{
+    position:absolute; left:50%; top:20px; width:190px; margin-left:-95px; border-radius:16px; overflow:hidden; cursor:pointer;
+    background:#15191f; box-shadow:0 18px 40px rgba(0,0,0,0.55);
+    transform:translateX(var(--x)) translateY(var(--y)) rotate(var(--r));
+    transition:transform .3s cubic-bezier(.2,.9,.3,1.2), box-shadow .3s ease, filter .3s ease;
+  }
+  .rm-art img{ width:190px; height:190px; object-fit:cover; display:block; }
+  .rm-cap{ padding:12px 14px 14px; font-size:19px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rm-cap b{ color:#7fe387; margin-right:8px; }
+  .rm-fan:hover .rm-art{ filter:brightness(0.55) saturate(0.7); }
+  .rm-fan .rm-art:hover{
+    filter:none; z-index:20 !important;
+    transform:translateX(var(--x)) translateY(-26px) rotate(0deg) scale(1.12);
+    box-shadow:0 0 0 5px #2fc23a, 0 0 36px rgba(47,194,58,0.5), 0 30px 60px rgba(0,0,0,0.65);
+  }
+  .rm-list{ display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(4,auto); grid-auto-flow:column; gap:8px 22px; }
+  .rm-row{ display:flex; align-items:center; gap:14px; padding:8px 12px; border-radius:12px; transition:background .15s ease; }
+  .rm-row:hover, .rm-row.now{ background:rgba(47,194,58,0.1); }
+  .rm-row .rk{ width:26px; font-size:22px; font-weight:700; color:rgba(255,255,255,0.6); text-align:right; }
+  .rm-row .mv{ width:14px; font-size:12px; font-style:normal; color:transparent; }
+  .rm-row .mv.up{ color:#2fc23a; } .rm-row .mv.dn{ color:#e0524a; }
+  .rm-row img{ width:52px; height:52px; border-radius:8px; object-fit:cover; flex:none; }
+  .rm-row .tt{ flex:1; min-width:0; }
+  .rm-row .tt b{ display:block; font-size:20px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rm-row .tt span{ display:block; font-size:16px; color:rgba(255,255,255,0.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rm-row .eq{ display:flex; gap:3px; align-items:flex-end; height:22px; width:22px; opacity:0; transition:opacity .2s ease; }
+  .rm-row:hover .eq, .rm-row.now .eq{ opacity:1; }
+  .rm-row .eq i{ width:4px; height:30%; background:#2fc23a; border-radius:2px; animation:rmEq 0.9s ease-in-out infinite; }
+  .rm-row .eq i:nth-child(2){ animation-delay:-.3s; } .rm-row .eq i:nth-child(3){ animation-delay:-.6s; } .rm-row .eq i:nth-child(4){ animation-delay:-.15s; }
+  @keyframes rmEq{ 0%,100%{ height:25%; } 50%{ height:100%; } }
+  .rm-spot{ display:inline-block; margin-top:22px; padding:12px 22px; border-radius:999px; background:#107c10; border:1px solid #2fc23a; color:#fff; text-decoration:none; font-size:20px; font-weight:600; width:fit-content; }
+  .rm-spot:hover{ background:#14921c; }
+  @media (prefers-reduced-motion: reduce){ .rm-row .eq i{ animation:none; height:60%; } .rm-art{ transition:none; } }
 </style>
 </head>
 <body>
@@ -3499,9 +3537,27 @@ function rcBuildData(){
             { src:'assets/pkmn-team-aquas-kyogre-ex.jpg', cap:'Team Aqua\u2019s Kyogre EX', sub:'Double Crisis \u00b7 2015' },
             { src:'assets/pkmn-ns-reshiram.jpg', cap:'N\u2019s Reshiram', sub:'Journey Together \u00b7 2025' }
           ] },
+        { title:'Music', feature:'music', href:'https://open.spotify.com/user/31vamgachq74kmegdoio5bj7ydy4?si=4f92f636ea7f4c40',
+          text:'Big music guy. These are my most played artists and songs right now, pulled from my Spotify listening.',
+          artists:[
+            { name:'Brent Faiyaz', src:'assets/music-brent-faiyaz.jpg', move:'up' },
+            { name:'redveil', src:'assets/music-redveil.jpg', move:'down' },
+            { name:'Drake', src:'assets/music-drake.jpg' },
+            { name:'Joe Hisaishi', src:'assets/music-joe-hisaishi.jpg' },
+            { name:'Playboi Carti', src:'assets/music-playboi-carti.jpg' },
+            { name:'PARTYNEXTDOOR', src:'assets/music-partynextdoor.jpg', move:'up' }
+          ],
+          tracks:[
+            { title:'TOXIC (with Skepta)', artist:'Playboi Carti, Skepta', src:'assets/music-track-toxic.jpg' },
+            { title:'Apple Pie', artist:'Travis Scott', src:'assets/music-track-apple-pie.jpg' },
+            { title:'MON B\u00c9B\u00c9', artist:'RnBoi', src:'assets/music-track-mon-bebe.jpg', move:'up' },
+            { title:'FINE SHIT', artist:'Playboi Carti', src:'assets/music-track-fine-shit.jpg', move:'down' },
+            { title:'ELLE VOULAIT', artist:'RnBoi', src:'assets/music-track-elle-voulait.jpg', move:'up' },
+            { title:'other side.', artist:'Brent Faiyaz', src:'assets/music-track-other-side.jpg' },
+            { title:'Can\u2019t Leave Alone', artist:'Pino, Avenoir, Maz B, 86', src:'assets/music-track-cant-leave-alone.jpg', move:'down' },
+            { title:'WHEN HE\u2019S GONE', artist:'PARTYNEXTDOOR, Drake', src:'assets/music-track-when-hes-gone.jpg', move:'down' }
+          ] },
         { title:'Photography', go:'photo', text:'Shooting on the Nikon wherever I travel.' },
-        { title:'Music', href:'https://open.spotify.com/user/31vamgachq74kmegdoio5bj7ydy4?si=4f92f636ea7f4c40',
-          text:'Big music guy. I keep a few Spotify playlists properly up to date.' },
         { title:'Competitive Fortnite', text:'I don’t play as much anymore, but I still watch FNCS.' },
         { title:'Basketball', text:'Basketball, and honestly every other sport, playing or watching.' }
       ]
@@ -3675,6 +3731,28 @@ function rcOpenDetail(c){
   document.getElementById('rcDBg').style.background = c.bg;
   if(!c.bg.includes('gradient(')){ document.getElementById('rcDBg').style.backgroundSize = 'cover'; document.getElementById('rcDBg').style.backgroundPosition = c.bgPos || 'center 40%'; }
   const cards = c.items.map((it, n) => {
+    if(it.feature === 'music'){
+      const mv = m => m === 'up' ? '<i class="mv up">\u25b2</i>' : m === 'down' ? '<i class="mv dn">\u25bc</i>' : '<i class="mv"></i>';
+      const n = it.artists.length;
+      const fan = it.artists.map((a, k) => {
+        const off = k - (n - 1) / 2;
+        return `<div class="rm-art" style="--r:${off * 5}deg;--x:${off * 150}px;--y:${Math.abs(off) * 10}px;z-index:${10 - Math.abs(Math.round(off))}">
+          <img src="${a.src}" alt="${a.name}"><div class="rm-cap"><b>${k + 1}</b>${a.name}</div></div>`;
+      }).join('');
+      const tracks = it.tracks.map((t, k) => `<div class="rm-row${k === 0 ? ' now' : ''}">
+          <span class="rk">${k + 1}</span>${mv(t.move)}<img src="${t.src}" alt="">
+          <span class="tt"><b>${t.title}</b><span>${t.artist}</span></span>
+          <span class="eq"><i></i><i></i><i></i><i></i></span></div>`).join('');
+      return `<div class="rc-card rf-wide rm-card">
+        <div class="cb rf-text"><h3>${it.title}</h3><p>${it.text}</p>
+          <a class="rm-spot" href="${it.href}" target="_blank" rel="noopener">Open my Spotify \u2197</a>
+          <div class="rf-hint">Hover an artist to pull them out of the deck</div></div>
+        <div class="rm-main">
+          <div class="rm-k">Top artists</div><div class="rm-fan">${fan}</div>
+          <div class="rm-k">Top songs</div><div class="rm-list">${tracks}</div>
+        </div>
+      </div>`;
+    }
     if(it.feature){
       const chips = (it.chips || []).map(ch => `<div class="rf-chip"><b>${ch[0]}</b><span>${ch[1]}</span></div>`).join('');
       const gal = (it.gallery || []).map((g, gi) => `<figure class="rf-${it.feature}" onclick="rcZoom('${g.src}')">
