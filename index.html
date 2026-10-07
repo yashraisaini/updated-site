@@ -1925,6 +1925,22 @@
   .rf-fn:nth-child(2) .ph{ box-shadow:0 0 0 4px rgba(47,194,58,0.7), 0 22px 50px rgba(0,0,0,0.6); }
   .rf-fn:nth-child(1) figcaption, .rf-fn:nth-child(3) figcaption{ margin-top:44px; }
   .rf-fav{ position:absolute; left:12px; top:12px; z-index:2; font-size:16px; font-weight:700; padding:6px 12px; border-radius:999px; background:#107c10; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+
+  /* Recent > Hobbies: NBA All-Star photos */
+  .rb-row{ flex:1; display:flex; justify-content:center; align-items:center; padding:84px 30px 60px 0; min-width:0; }
+  .rb-pol{
+    flex:none; width:190px; margin-left:-62px; padding:10px 10px 34px; background:#f4f1ea; border-radius:6px; cursor:pointer; position:relative;
+    box-shadow:0 16px 34px rgba(0,0,0,0.55); transform:translateY(var(--y)) rotate(var(--r));
+    transition:transform .3s cubic-bezier(.2,.9,.3,1.2), box-shadow .3s ease, filter .3s ease;
+  }
+  .rb-pol:first-child{ margin-left:0; }
+  .rb-pol img{ width:170px; height:226px; object-fit:cover; display:block; border-radius:2px; }
+  .rb-row:hover .rb-pol{ filter:brightness(0.6); }
+  .rb-row .rb-pol:hover{ filter:none; z-index:30 !important; transform:translateY(-30px) rotate(0deg) scale(1.22);
+    box-shadow:0 0 0 5px #2fc23a, 0 0 36px rgba(47,194,58,0.5), 0 30px 60px rgba(0,0,0,0.65); }
+  .rb-tag{ display:inline-block; margin-top:22px; padding:8px 16px; border-radius:999px; font-size:19px; font-weight:600;
+    background:rgba(29,66,138,0.35); border:1px solid rgba(200,16,46,0.6); width:fit-content; }
+  @media (prefers-reduced-motion: reduce){ .rb-pol{ transition:none; } }
 </style>
 </head>
 <body>
@@ -3575,7 +3591,9 @@ function rcBuildData(){
             { src:'assets/fn-clix.jpg', cap:'Clix', sub:'My favourite. Supporting him since grade 10', fav:true, pos:'center 30%' },
             { src:'assets/fn-vico-malabuca.jpg', cap:'Vico & Malabuca', pos:'center 25%' }
           ] },
-        { title:'Basketball', text:'Basketball, and honestly every other sport, playing or watching.' }
+        { title:'Basketball', feature:'bball',
+          text:'Basketball, and honestly every other sport, playing or watching. Some of the players I got to meet at NBA All-Star 2026.',
+          photos:['assets/allstar-01.jpg','assets/allstar-02.jpg','assets/allstar-03.jpg','assets/allstar-04.jpg','assets/allstar-05.jpg','assets/allstar-06.jpg','assets/allstar-07.jpg'] }
       ]
     }
   ];
@@ -3747,6 +3765,20 @@ function rcOpenDetail(c){
   document.getElementById('rcDBg').style.background = c.bg;
   if(!c.bg.includes('gradient(')){ document.getElementById('rcDBg').style.backgroundSize = 'cover'; document.getElementById('rcDBg').style.backgroundPosition = c.bgPos || 'center 40%'; }
   const cards = c.items.map((it, n) => {
+    if(it.feature === 'bball'){
+      const n = it.photos.length;
+      const pol = it.photos.map((src, k) => {
+        const off = k - (n - 1) / 2;
+        return `<div class="rb-pol" style="--r:${(k % 2 ? 1 : -1) * (3 + (k % 3))}deg;--y:${Math.abs(off) * 6}px;z-index:${10 - Math.abs(Math.round(off))}" onclick="rcZoom('${src}')">
+          <img src="${src}" alt="NBA All-Star 2026, photo ${k + 1}" loading="lazy"></div>`;
+      }).join('');
+      return `<div class="rc-card rf-wide rb-card">
+        <div class="cb rf-text"><h3>${it.title}</h3><p>${it.text}</p>
+          <div class="rb-tag">NBA All-Star \u00b7 2026</div>
+          <div class="rf-hint">Hover a photo to lift it out, select to view full size</div></div>
+        <div class="rb-row">${pol}</div>
+      </div>`;
+    }
     if(it.feature === 'music'){
       const mv = m => m === 'up' ? '<i class="mv up">\u25b2</i>' : m === 'down' ? '<i class="mv dn">\u25bc</i>' : '<i class="mv"></i>';
       const n = it.artists.length;
