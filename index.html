@@ -3422,9 +3422,8 @@ function rcBuildData(){
     {
       id:'goals', title:'Goals', kicker:'The next six months',
       summary:'What I want done by spring 2027.',
-      tile:'radial-gradient(circle at 30% 25%, #2fc23a 0%, rgba(47,194,58,0) 55%), linear-gradient(150deg,#0f3d1a,#081a10 70%)',
-      bg: lisbon,
-      tileText:'Next<br>6 months',
+      tile:'url("assets/goals-seoul.jpg")', tilePos:'center 55%',
+      bg:'url("assets/goals-seoul.jpg")', bgPos:'center 58%',
       items:[
         { status:'In progress', title:'Launch Bleeding Disorders Ontario',
           text:'Finish the build this fall and take the new site live in January 2027.' },
@@ -3492,6 +3491,7 @@ function rcBuild(){
     el.style.width = el.style.height = (big ? RC.BIG : RC.SM) + 'px';
     if(t.kind === 'cat'){
       el.style.backgroundImage = t.data.tile;
+      if(t.data.tilePos) el.style.backgroundPosition = t.data.tilePos;
       el.innerHTML = (t.data.tileText ? `<div style="position:absolute;left:20px;top:18px;font-size:${big?40:27}px;font-weight:700;line-height:1.05">${t.data.tileText}</div>` : '') +
         `<div class="lbl"><small>${t.data.kicker}</small>${t.data.title}</div>`;
     } else {
@@ -3593,7 +3593,7 @@ function rcSetBg(bg, instant){
   const next = rcBgFlip ? a : b, prev = rcBgFlip ? b : a;
   if(prev.dataset.bg === bg) return;
   next.style.background = bg;
-  if(!bg.includes('gradient(')){ next.style.backgroundSize = 'cover'; next.style.backgroundPosition = 'center 40%'; }
+  if(!bg.includes('gradient(')){ next.style.backgroundSize = 'cover'; next.style.backgroundPosition = ((RECENT.find(c => c.bg === bg) || {}).bgPos) || 'center 40%'; }
   next.dataset.bg = bg;
   next.style.transition = instant ? 'none' : '';
   next.classList.add('on'); prev.classList.remove('on'); prev.dataset.bg = '';
@@ -3617,7 +3617,7 @@ function rcToast(msg){
 
 function rcOpenDetail(c){
   document.getElementById('rcDBg').style.background = c.bg;
-  if(!c.bg.includes('gradient(')){ document.getElementById('rcDBg').style.backgroundSize = 'cover'; document.getElementById('rcDBg').style.backgroundPosition = 'center 40%'; }
+  if(!c.bg.includes('gradient(')){ document.getElementById('rcDBg').style.backgroundSize = 'cover'; document.getElementById('rcDBg').style.backgroundPosition = c.bgPos || 'center 40%'; }
   const cards = c.items.map((it, n) => {
     const link = it.open || it.go || it.href;
     const top = it.status
