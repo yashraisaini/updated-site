@@ -3071,6 +3071,22 @@ buildProjects();
 
 /* ---------------- PHOTOGRAPHY (modern Xbox dashboard) ---------------- */
 const ALBUMS = [
+  { name:'Korea', where:'Seoul', cover:'assets/seoul-03.jpg', hero:'assets/seoul-09.jpg',
+    favourite:'Palace gates at sunset, Myeongdong after dark, and the whole city from Namsan.', photos:[
+      'assets/seoul-01.jpg',
+      'assets/seoul-02.jpg',
+      'assets/seoul-03.jpg',
+      'assets/seoul-04.jpg',
+      'assets/seoul-05.jpg',
+      'assets/seoul-06.jpg',
+      'assets/seoul-07.jpg',
+      'assets/seoul-08.jpg',
+      'assets/seoul-09.jpg',
+      'assets/seoul-10.jpg',
+      'assets/seoul-11.jpg',
+      'assets/seoul-12.jpg',
+      'assets/seoul-13.jpg'
+    ] },
   { name:'Greece', where:'Athens, 2024', cover:'assets/d09e36bf40f7.jpg', hero:'assets/0038749ae735.jpg',
     favourite:'A rooftop over Athens with the Nikon.', photos:['assets/026718dd3e0d.jpg','assets/a88c6456bbee.jpg','assets/514af7bce886.jpg','assets/762472dd5fd6.jpg','assets/22ae83612b2d.jpg','assets/5b9aadb01ac2.jpg','assets/31a42dc4eff8.jpg','assets/5caad9201066.jpg','assets/3221c5e37ac8.jpg'] },
   { name:'Italy', where:'Rome, Milan & Lake Como', cover:'assets/72e198a43604.jpg', hero:'assets/95f899be3400.jpg',
@@ -3884,6 +3900,8 @@ buildAlbums = function(){
   ALBUMS.forEach((a, i) => {
     const el = document.createElement('div');
     el.className = 'album' + (a.cover ? '' : ' solid') + (i === xAlbum ? ' sel' : '');
+    const w = Math.min(299, Math.floor((1890 - (ALBUMS.length - 1) * 24) / ALBUMS.length));
+    el.style.width = w + 'px'; el.style.height = Math.round(w * 1.3) + 'px';
     if(a.cover) el.style.backgroundImage = 'url(' + a.cover + ')'; else el.style.background = a.color;
     const n = a.photos ? a.photos.length : 0;
     el.innerHTML = '<div class="alabel">' + a.name + '<span class="acount">' + (a.where ? a.where + ' · ' : '') + (n ? n + ' photos' : 'coming soon') + '</span></div>';
