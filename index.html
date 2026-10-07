@@ -1850,6 +1850,33 @@
     text-shadow:0 2px 8px rgba(0,0,0,0.6); }
   .xd-hints span{ display:inline-flex; align-items:center; }
   .xd-hints .clk{ cursor:pointer; }
+
+  /* Recent detail: feature cards (fantasy teams, Pokemon) */
+  .rc-card.rf-wide{ grid-column:1 / -1; flex-direction:row; align-items:stretch; }
+  .rf-text{ width:520px; flex:none; display:flex; flex-direction:column; }
+  .rf-text p{ font-size:25px; }
+  .rf-chips{ display:flex; flex-direction:column; gap:12px; margin-top:26px; }
+  .rf-chip{ display:flex; align-items:baseline; gap:16px; padding:14px 18px; border-radius:12px; background:rgba(47,194,58,0.1); border:1px solid rgba(47,194,58,0.25); }
+  .rf-chip b{ font-size:44px; font-weight:700; color:#7fe387; min-width:80px; }
+  .rf-chip span{ font-size:21px; color:rgba(255,255,255,0.75); }
+  .rf-hint{ margin-top:auto; padding-top:24px; font-size:19px; color:rgba(255,255,255,0.45); }
+  .rf-gal{ flex:1; display:flex; gap:28px; justify-content:center; align-items:flex-start; padding:30px 34px 30px 0; }
+  .rf-gal figure{ margin:0; cursor:pointer; display:flex; flex-direction:column; align-items:center; }
+  .rf-gal .ph{ border-radius:18px; overflow:hidden; box-shadow:0 18px 40px rgba(0,0,0,0.5); transition:transform .25s ease, box-shadow .25s ease; }
+  .rf-gal img{ display:block; }
+  .rf-football .ph img{ width:330px; height:560px; object-fit:cover; object-position:top; }
+  .rf-football .ph{ border:6px solid #15191f; border-radius:30px; }
+  .rf-cards .ph{ border-radius:16px; }
+  .rf-cards .ph img{ height:470px; width:auto; }
+  .rf-cards:nth-child(1) .ph{ transform:rotate(-4deg); }
+  .rf-cards:nth-child(3) .ph{ transform:rotate(4deg); }
+  .rf-gal figure:hover .ph{ transform:translateY(-10px) rotate(0deg) scale(1.03); box-shadow:0 0 0 5px #2fc23a, 0 0 34px rgba(47,194,58,0.45), 0 26px 50px rgba(0,0,0,0.6); }
+  .rf-gal figcaption{ margin-top:20px; text-align:center; max-width:340px; }
+  .rf-gal figcaption b{ display:block; font-size:22px; font-weight:600; }
+  .rf-gal figcaption span{ display:block; font-size:18px; color:rgba(255,255,255,0.55); margin-top:4px; }
+  .rc-zoom{ position:absolute; inset:0; z-index:40; display:none; align-items:center; justify-content:center; background:rgba(3,5,7,0.92); backdrop-filter:blur(12px); }
+  .rc-zoom.on{ display:flex; }
+  .rc-zoom img{ max-width:80%; max-height:84%; border-radius:16px; box-shadow:0 30px 80px rgba(0,0,0,0.7); cursor:zoom-out; }
 </style>
 </head>
 <body>
@@ -3439,10 +3466,23 @@ function rcBuildData(){
     },
     {
       id:'hobbies', title:'Hobbies', kicker:'Everything else',
-      summary:'What fills the rest of the week.',
+      summary:'Fantasy football, Pok\u00e9mon cards, photography and everything else that fills the week.',
       tile: rcUrl(typeof P_PSG !== 'undefined' ? P_PSG : ''), bg: rcUrl(typeof P_PSG !== 'undefined' ? P_PSG : ''),
       items:[
-        { title:'Football', text:'Chelsea supporter and a Fantasy Premier League regular.' },
+        { title:'Football', feature:'football',
+          text:'Chelsea supporter, and this season I\u2019m running two fantasy teams: ReecesPiecesFc in Fantasy Premier League and godblessmadridandme in Champions League Fantasy.',
+          chips:[['97','pts in Gameweek 4'],['69','gameweek average'],['73','pts on UCL Matchday 1']],
+          gallery:[
+            { src:'assets/fpl-reecespiecesfc.jpg', cap:'ReecesPiecesFc \u00b7 Fantasy Premier League, Gameweek 4' },
+            { src:'assets/ucl-fantasy-godblessmadridandme.jpg', cap:'godblessmadridandme \u00b7 Champions League Fantasy' }
+          ] },
+        { title:'Pok\u00e9mon cards', feature:'cards',
+          text:'I collect Pok\u00e9mon cards, and these are three of my favourites from my own collection.',
+          gallery:[
+            { src:'assets/pkmn-mega-charizard-ex.jpg', cap:'Mega Charizard EX', sub:'Flashfire \u00b7 2014' },
+            { src:'assets/pkmn-team-aquas-kyogre-ex.jpg', cap:'Team Aqua\u2019s Kyogre EX', sub:'Double Crisis \u00b7 2015' },
+            { src:'assets/pkmn-ns-reshiram.jpg', cap:'N\u2019s Reshiram', sub:'Journey Together \u00b7 2025' }
+          ] },
         { title:'Photography', go:'photo', text:'Shooting on the Nikon wherever I travel.' },
         { title:'Music', href:'https://open.spotify.com/user/31vamgachq74kmegdoio5bj7ydy4?si=4f92f636ea7f4c40',
           text:'Big music guy. I keep a few Spotify playlists properly up to date.' },
@@ -3619,6 +3659,16 @@ function rcOpenDetail(c){
   document.getElementById('rcDBg').style.background = c.bg;
   if(!c.bg.includes('gradient(')){ document.getElementById('rcDBg').style.backgroundSize = 'cover'; document.getElementById('rcDBg').style.backgroundPosition = c.bgPos || 'center 40%'; }
   const cards = c.items.map((it, n) => {
+    if(it.feature){
+      const chips = (it.chips || []).map(ch => `<div class="rf-chip"><b>${ch[0]}</b><span>${ch[1]}</span></div>`).join('');
+      const gal = (it.gallery || []).map((g, gi) => `<figure class="rf-${it.feature}" onclick="rcZoom('${g.src}')">
+          <div class="ph"><img src="${g.src}" alt="${g.cap}" loading="lazy"></div>
+          <figcaption><b>${g.cap}</b>${g.sub ? `<span>${g.sub}</span>` : ''}</figcaption></figure>`).join('');
+      return `<div class="rc-card rf-wide rf-${it.feature}-card">
+        <div class="cb rf-text"><h3>${it.title}</h3><p>${it.text}</p>${chips ? `<div class="rf-chips">${chips}</div>` : ''}<div class="rf-hint">Select an image to view it full size</div></div>
+        <div class="rf-gal">${gal}</div>
+      </div>`;
+    }
     const link = it.open || it.go || it.href;
     const top = it.status
       ? `<span class="pill${it.status === 'In progress' ? '' : ' next'}">${it.status}</span>`
@@ -3651,6 +3701,22 @@ function rcOpenDetail(c){
   });
   document.getElementById('rcDetail').classList.add('on');
 }
+
+function rcZoom(src){
+  let z = document.getElementById('rcZoom');
+  if(!z){
+    z = document.createElement('div'); z.id = 'rcZoom'; z.className = 'rc-zoom';
+    z.innerHTML = '<img alt=""><div class="x-hints"><span class="clk" onclick="rcZoomClose()"><span class="bc b">B</span>Back</span></div>';
+    z.addEventListener('click', e => { if(e.target === z || e.target.tagName === 'IMG') rcZoomClose(); });
+    document.getElementById('rcDetail').appendChild(z);
+  }
+  z.querySelector('img').src = src; z.classList.add('on');
+}
+function rcZoomClose(){ const z = document.getElementById('rcZoom'); if(z) z.classList.remove('on'); }
+document.addEventListener('keydown', e => {
+  const z = document.getElementById('rcZoom');
+  if(z && z.classList.contains('on') && (e.key === 'Escape' || e.key.toLowerCase() === 'b')){ rcZoomClose(); e.stopImmediatePropagation(); }
+}, true);
 function rcCloseDetail(){ document.getElementById('rcDetail').classList.remove('on'); }
 
 /* arrow keys, A to select, B to back out */
