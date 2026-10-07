@@ -1915,6 +1915,16 @@
   .rm-spot{ display:inline-block; margin-top:22px; padding:12px 22px; border-radius:999px; background:#107c10; border:1px solid #2fc23a; color:#fff; text-decoration:none; font-size:20px; font-weight:600; width:fit-content; }
   .rm-spot:hover{ background:#14921c; }
   @media (prefers-reduced-motion: reduce){ .rm-row .eq i{ animation:none; height:60%; } .rm-art{ transition:none; } }
+
+  /* Recent > Hobbies: favourite Fortnite players */
+  .rf-gal figure.rf-fn .ph{ position:relative; border-radius:18px; }
+  .rf-fn .ph img{ width:250px; height:330px; object-fit:cover; }
+  .rf-fn:nth-child(1) .ph{ transform:rotate(-4deg) translateY(24px); }
+  .rf-fn:nth-child(3) .ph{ transform:rotate(4deg) translateY(24px); }
+  .rf-fn:nth-child(2) .ph img{ width:290px; height:385px; }
+  .rf-fn:nth-child(2) .ph{ box-shadow:0 0 0 4px rgba(47,194,58,0.7), 0 22px 50px rgba(0,0,0,0.6); }
+  .rf-fn:nth-child(1) figcaption, .rf-fn:nth-child(3) figcaption{ margin-top:44px; }
+  .rf-fav{ position:absolute; left:12px; top:12px; z-index:2; font-size:16px; font-weight:700; padding:6px 12px; border-radius:999px; background:#107c10; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
 </style>
 </head>
 <body>
@@ -3558,7 +3568,13 @@ function rcBuildData(){
             { title:'WHEN HE\u2019S GONE', artist:'PARTYNEXTDOOR, Drake', src:'assets/music-track-when-hes-gone.jpg', move:'down' }
           ] },
         { title:'Photography', go:'photo', text:'Shooting on the Nikon wherever I travel.' },
-        { title:'Competitive Fortnite', text:'I don’t play as much anymore, but I still watch FNCS.' },
+        { title:'Competitive Fortnite', feature:'fn',
+          text:'I don\u2019t play as much anymore, but I still watch FNCS. These are the players I\u2019m following right now.',
+          gallery:[
+            { src:'assets/fn-shark.jpg', cap:'Shark', pos:'center 20%' },
+            { src:'assets/fn-clix.jpg', cap:'Clix', sub:'My favourite. Supporting him since grade 10', fav:true, pos:'center 30%' },
+            { src:'assets/fn-vico-malabuca.jpg', cap:'Vico & Malabuca', pos:'center 25%' }
+          ] },
         { title:'Basketball', text:'Basketball, and honestly every other sport, playing or watching.' }
       ]
     }
@@ -3756,7 +3772,7 @@ function rcOpenDetail(c){
     if(it.feature){
       const chips = (it.chips || []).map(ch => `<div class="rf-chip"><b>${ch[0]}</b><span>${ch[1]}</span></div>`).join('');
       const gal = (it.gallery || []).map((g, gi) => `<figure class="rf-${it.feature}" onclick="rcZoom('${g.src}')">
-          <div class="ph"><img src="${g.src}" alt="${g.cap}" loading="lazy"></div>
+          <div class="ph">${g.fav ? '<span class="rf-fav">\u2605 Favourite</span>' : ''}<img src="${g.src}" alt="${g.cap}" loading="lazy"${g.pos ? ` style="object-position:${g.pos}"` : ''}></div>
           <figcaption><b>${g.cap}</b>${g.sub ? `<span>${g.sub}</span>` : ''}</figcaption></figure>`).join('');
       return `<div class="rc-card rf-wide rf-${it.feature}-card">
         <div class="cb rf-text"><h3>${it.title}</h3><p>${it.text}</p>${chips ? `<div class="rf-chips">${chips}</div>` : ''}<div class="rf-hint">Select an image to view it full size</div></div>
