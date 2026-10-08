@@ -1959,6 +1959,70 @@
   .rc-zoom .lb-arrow, .rc-zoom .pin-count{ display:none; }
   .rc-zoom.multi .lb-arrow, .rc-zoom.multi .pin-count{ display:flex; }
   .rc-zoom .pin-count{ bottom:44px; color:rgba(255,255,255,0.85); }
+
+  /* ================= SEARCH: Xbox on-screen keyboard ================= */
+  .xs{
+    position:absolute; inset:0; z-index:200; display:none;
+    background:rgba(18,24,48,0.62); backdrop-filter:blur(6px) saturate(0.8);
+    font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif; color:#fff;
+  }
+  .xs.on{ display:block; }
+  .xs-panel{
+    position:absolute; left:320px; top:60px; width:1560px;
+    background:linear-gradient(180deg, rgba(36,42,66,0.97), rgba(28,33,54,0.97));
+    box-shadow:0 40px 100px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.06);
+    padding:30px 34px 34px;
+    animation:xsIn .22s cubic-bezier(.2,.9,.3,1);
+  }
+  @keyframes xsIn{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+  .xs-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; }
+  .xs-title{ font-size:42px; font-weight:600; letter-spacing:-0.3px; }
+  .xs-close{ font-size:24px; color:rgba(255,255,255,0.8); cursor:pointer; display:inline-flex; align-items:center; }
+  .xs-close .bc{ width:38px; height:38px; font-size:21px; margin-right:10px; }
+  .xs-input{
+    width:100%; height:76px; border:none; outline:none; border-radius:2px;
+    background:#f5f7fc; color:#1b2030; font-size:36px; padding:0 24px;
+    font-family:inherit; caret-color:#107c10;
+  }
+  .xs-input::placeholder{ color:#8a90a3; }
+  .xs-results{
+    height:366px; margin:16px 0 18px; background:rgba(10,13,26,0.55); padding:8px 10px;
+    display:flex; flex-direction:column; gap:6px; overflow:hidden;
+  }
+  .xs-label{ font-size:18px; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,0.5); padding:6px 12px 2px; }
+  .xs-row{
+    display:flex; align-items:center; gap:20px; height:56px; padding:0 18px 0 8px; cursor:pointer; flex:none;
+    border:3px solid transparent; transition:background .1s ease;
+  }
+  .xs-row .ic{ width:46px; height:46px; flex:none; display:flex; align-items:center; justify-content:center; background-size:cover; background-position:center; }
+  .xs-row .ic svg{ width:26px; height:26px; stroke:#fff; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .xs-row .t{ flex:1; font-size:27px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .xs-row .t b{ color:#9be36b; font-weight:700; }
+  .xs-row .t small{ font-size:20px; color:rgba(255,255,255,0.55); margin-left:14px; }
+  .xs-row .cat{ font-size:18px; padding:5px 14px; border-radius:999px; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
+  .xs-row.f{ background:#3cb83c; border-color:#8ee86e; }
+  .xs-row.f .t, .xs-row.f .t small{ color:#fff; } .xs-row.f .t b{ color:#fff; text-decoration:underline; }
+  .xs-row.f .cat{ background:rgba(0,0,0,0.2); color:#fff; }
+  .xs-empty{ padding:30px 14px; font-size:26px; color:rgba(255,255,255,0.6); }
+
+  .xs-kb{
+    display:grid; gap:4px; background:rgba(10,13,26,0.6); padding:4px;
+    grid-template-columns:190px repeat(10, 1fr) 170px; grid-auto-rows:84px;
+  }
+  .xs-k{
+    background:#3a4260; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    font-size:38px; font-weight:500; cursor:pointer; user-select:none; position:relative;
+    outline:3px solid transparent; outline-offset:-3px; transition:background .08s ease;
+  }
+  .xs-k.side{ background:#4a5372; font-size:40px; }
+  .xs-k .bd{ font-size:15px; font-weight:700; padding:2px 8px; border-radius:7px; border:2px solid rgba(255,255,255,0.75); line-height:1.2; }
+  .xs-k .bd.round{ width:30px; height:30px; padding:0; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .xs-k .row{ display:flex; align-items:center; gap:10px; }
+  .xs-k.small{ font-size:24px; }
+  .xs-k.on-toggle{ background:#55607f; box-shadow:inset 0 -4px 0 #6fd13f; }
+  .xs-k.f{ background:#3cb83c; outline-color:#8ee86e; z-index:1; }
+  .xs-k:active{ transform:scale(0.97); }
+  .rc-card.xs-flash{ box-shadow:0 0 0 5px #2fc23a, 0 0 40px rgba(47,194,58,0.5) !important; transition:box-shadow .3s ease; }
 </style>
 </head>
 <body>
@@ -4487,6 +4551,321 @@ document.addEventListener('keydown', e => {
   if(e.key === 'ArrowRight' || k === 'e' || k === ']'){ lbStep(1); e.preventDefault(); e.stopImmediatePropagation(); }
   else if(e.key === 'ArrowLeft' || k === 'q' || k === '['){ lbStep(-1); e.preventDefault(); e.stopImmediatePropagation(); }
 }, true);
+</script>
+
+<script>
+/* =====================================================================
+   SEARCH: Xbox-style on-screen keyboard with live suggestions.
+   The index is built from the site's own data (JOBS, PROJECTS, ALBUMS,
+   RECENT, recommendations, links), so new content shows up automatically.
+   ===================================================================== */
+const XS_IC = {
+  job:'<svg viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V5.5h6v2M3.5 12.5h17"/></svg>',
+  proj:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M12 4v16M4 12h16"/></svg>',
+  photo:'<svg viewBox="0 0 24 24"><path d="M4 8.5h3l1.6-2.5h6.8L17 8.5h3V19H4z"/><circle cx="12" cy="13" r="3.4"/></svg>',
+  recent:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  hobby:'<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg>',
+  person:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M5 20c.6-3.6 3.4-5.6 7-5.6s6.4 2 7 5.6"/></svg>',
+  link:'<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg>',
+  quote:'<svg viewBox="0 0 24 24"><path d="M4 6h16v10H9l-5 4z"/></svg>',
+  home:'<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>'
+};
+const XS_COL = { job:'#107c10', proj:'#2d6cdf', photo:'#c2410c', recent:'#0e7490', hobby:'#7c3aed', person:'#4b5563', link:'#374151', quote:'#9d174d', home:'#107c10' };
+const XS_HOBBY_KW = {
+  'Football':'fantasy premier league fpl champions league ucl chelsea soccer',
+  'Pokémon cards':'pokemon cards tcg charizard kyogre reshiram collection',
+  'Music':'spotify artists songs playlists',
+  'Photography':'camera nikon',
+  'Competitive Fortnite':'fncs esports gaming clix players',
+  'Basketball':'nba all-star allstar 2026 sports'
+};
+const XS_PROJ_KW = {
+  'Credere':'splitwise expense split travel receipts card fees',
+  'Contrail':'flight tracker flighty globe passport',
+  'Vena':'hemophilia medication factor treatment',
+  'ReservAir':'airline booking flights cp317',
+  'Invest Brampton':'city brampton medtech health life sciences'
+};
+function xsCssBg(cls){
+  const t = document.createElement('div'); t.className = cls; t.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px';
+  document.body.appendChild(t); const bg = getComputedStyle(t).backgroundImage; t.remove();
+  return bg && bg !== 'none' ? bg : '';
+}
+function xsReset(){
+  ['rcDetail','galov','photolb','xoverlay','pinsoverlay','lightbox','lightbox2'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('on'); });
+  if(typeof rcZoomClose === 'function') rcZoomClose();
+  const pv = document.getElementById('poverlay');
+  if(pv){ pv.classList.remove('on','recs-bg'); }
+  if(typeof recsDetailOpen !== 'undefined') recsDetailOpen = false;
+  if(typeof recsFromHome !== 'undefined') recsFromHome = false;
+}
+function xsOpenRecent(id, cardTitle){
+  go('recent');
+  const c = RECENT.find(x => x.id === id); if(!c) return;
+  const i = rcTiles.findIndex(t => t.kind === 'cat' && t.data.id === id); if(i >= 0) rcSetFocus(i, true);
+  rcOpenDetail(c);
+  if(cardTitle){
+    const h = [...document.querySelectorAll('#rcDScroll .rc-card h3')].find(h => h.textContent.trim() === cardTitle);
+    if(h){ const card = h.closest('.rc-card'); setTimeout(() => { card.scrollIntoView({ block:'start', behavior:'smooth' }); card.classList.add('xs-flash'); setTimeout(() => card.classList.remove('xs-flash'), 1600); }, 60); }
+  }
+}
+function xsIndex(){
+  const E = [];
+  const add = (title, cat, kind, kw, run, img, sub) => E.push({ title, cat, kind, kw:kw || '', run, img:img || '', sub:sub || '' });
+  // sections
+  add('Home', 'Section', 'home', 'dashboard start', () => go('home'));
+  add('Work experience', 'Section', 'job', 'jobs internships career resume', () => go('exp'));
+  add('Featured work', 'Section', 'proj', 'projects portfolio builds', () => go('proj'));
+  add('Photography', 'Section', 'photo', 'photos albums travel trips camera nikon', () => go('photo'));
+  add('Recent', 'Section', 'recent', 'now latest update life goals hobbies', () => go('recent'));
+  add('About me', 'Profile', 'person', 'profile bio yash rai saini', () => go('me'));
+  add('Recommendations', 'Section', 'quote', 'recs references testimonials messages', () => { go('proj'); openRecs(); });
+  add('My Pins', 'Section', 'home', 'pinned photos throwbacks', () => { go('home'); openPins(); });
+  // jobs
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach((j, i) => {
+    const name = j.company.split('|')[0].trim();
+    add(name, j.type === 'gallery' ? 'Work extras' : 'Job', 'job', [j.company, j.role, (j.meta || []).join(' ')].join(' '),
+      () => { go('exp'); active = i; layout(); openCard(i); }, j.photo ? xsCssBg(j.photo) : '', j.type === 'gallery' ? '' : j.role);
+  });
+  // projects
+  (typeof PROJECTS !== 'undefined' ? PROJECTS : []).forEach((p, i) => {
+    if(!(p.sections && p.sections.some(s => s.body))) return;
+    add(p.title, 'Project', 'proj', (XS_PROJ_KW[p.title] || '') + ' ' + (p.kicker || ''),
+      () => { go('proj'); openProj(i); }, p.photo ? `url("${p.photo}")` : '');
+  });
+  // recommendations
+  ((typeof getAllRecs === 'function') ? getAllRecs() : []).forEach((r, i) => {
+    add(r.name, 'Recommendation', 'quote', 'recommendation reference ' + (r.role || ''),
+      () => { go('proj'); openRecs(); openRecDetail(i); }, r.photo ? `url("${r.photo}")` : '');
+  });
+  // albums
+  (typeof ALBUMS !== 'undefined' ? ALBUMS : []).forEach((a, i) => {
+    add(a.name, 'Album', 'photo', 'photos album trip travel ' + (a.where || ''),
+      () => { go('photo'); xFocusAlbum(i); openAlbum(i); }, a.cover ? `url("${a.cover}")` : '', a.where);
+  });
+  // recent
+  (typeof RECENT !== 'undefined' ? RECENT : []).forEach(c => {
+    add(c.title, 'Recent', 'recent', c.kicker + ' ' + c.summary, () => xsOpenRecent(c.id));
+    if(c.id === 'hobbies') c.items.forEach(it => {
+      if(it.title === 'Photography') return;
+      add(it.title, 'Hobbies', 'hobby', XS_HOBBY_KW[it.title] || '', () => xsOpenRecent('hobbies', it.title));
+    });
+  });
+  // links
+  if(typeof LINKS !== 'undefined') Object.values(LINKS).forEach(([t, d, url]) => add(t, 'Link', 'link', d, () => window.open(url, '_blank', 'noopener')));
+  add('Email', 'Link', 'link', 'contact mail reach', () => { location.href = 'mailto:yashraisainii@gmail.com'; });
+  return E;
+}
+const xsNorm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+function xsSearch(q){
+  const qn = xsNorm(q).trim(); if(!qn) return [];
+  const toks = qn.split(/\s+/);
+  const out = [];
+  XS_INDEX.forEach((e, order) => {
+    const tn = xsNorm(e.title), hay = (tn + ' ' + xsNorm(e.kw) + ' ' + xsNorm(e.cat)).split(/[^a-z0-9]+/).filter(Boolean);
+    if(!toks.every(t => hay.some(w => w.startsWith(t)) || tn.includes(t))) return;
+    let score = 0;
+    if(tn.startsWith(qn)) score += 100;
+    else if(tn.split(/[^a-z0-9]+/).some(w => w.startsWith(toks[0]))) score += 60;
+    else if(tn.includes(qn)) score += 40;
+    if(e.cat === 'Section') score += 8;
+    out.push({ e, score, order });
+  });
+  return out.sort((a, b) => b.score - a.score || a.order - b.order).map(o => o.e).slice(0, 5);
+}
+
+/* ---- keyboard layout ---- */
+const XS_ROWS = {
+  abc:[ 'QWERTYUIOP'.split(''), 'ASDFGHJKL\''.split(''), 'ZXCVBNM;:!'.split('') ],
+  sym:[ '!@#$%&*()-'.split(''), '_=+[]/?,.~'.split(''), '<>{}|\\^`"\''.split('') ]
+};
+let xsKeys = [], xsFocus = { type:'key', i:0 }, xsResults = [], xsShift = true, xsSym = false, XS_INDEX = [], xsLastKey = 0;
+function xsBuildKeys(){
+  const K = [];
+  K.push({ id:'sym', c:1, r:1, side:true, html:'<div class="row">#+= <span class="bd">LT</span></div>' });
+  '1234567890'.split('').forEach((d, k) => K.push({ id:'ch', ch:d, c:2 + k, r:1 }));
+  K.push({ id:'bksp', c:12, r:1, side:true, html:'<div class="row">⌫ <span class="bd round">X</span></div>' });
+  K.push({ id:'left', c:1, r:2, rs:2, side:true, html:'‹<span class="bd">LB</span>' });
+  const rows = XS_ROWS[xsSym ? 'sym' : 'abc'];
+  rows.forEach((row, ri) => row.forEach((ch, k) => K.push({ id:'ch', ch, c:2 + k, r:2 + ri })));
+  K.push({ id:'right', c:12, r:2, rs:2, side:true, html:'›<span class="bd">RB</span>' });
+  K.push({ id:'shift', c:1, r:4, rs:2, side:true, html:'⇧' });
+  K.push({ id:'enter', c:12, r:4, rs:2, side:true, html:'↵<span class="bd round">≡</span>' });
+  K.push({ id:'clear', c:2, r:5, small:true, html:'Clear' });
+  K.push({ id:'space', c:3, r:5, cs:9, html:'<div class="row">␣ <span class="bd round">Y</span></div>' });
+  return K;
+}
+function xsRenderKeys(){
+  const kb = document.getElementById('xsKb');
+  const keepId = xsFocus.type === 'key' && xsKeys[xsFocus.i] ? { c:xsKeys[xsFocus.i].c, r:xsKeys[xsFocus.i].r } : null;
+  xsKeys = xsBuildKeys();
+  kb.innerHTML = xsKeys.map((k, i) => {
+    let label = k.html;
+    if(k.id === 'ch') label = (/[a-z]/i.test(k.ch) && !xsShift) ? k.ch.toLowerCase() : k.ch;
+    const toggled = (k.id === 'shift' && xsShift) || (k.id === 'sym' && xsSym);
+    return `<div class="xs-k${k.side ? ' side' : ''}${k.small ? ' small' : ''}${toggled ? ' on-toggle' : ''}" data-i="${i}"
+      style="grid-column:${k.c} / span ${k.cs || 1};grid-row:${k.r} / span ${k.rs || 1}">${label}</div>`;
+  }).join('');
+  kb.querySelectorAll('.xs-k').forEach(el => {
+    const i = +el.dataset.i;
+    el.addEventListener('mouseenter', () => xsSetFocus({ type:'key', i }));
+    el.addEventListener('mousedown', e => e.preventDefault());
+    el.addEventListener('click', () => { xsSetFocus({ type:'key', i }); xsPress(xsKeys[i]); });
+  });
+  if(keepId){ const j = xsKeys.findIndex(k => k.c === keepId.c && k.r === keepId.r); xsFocus = { type:'key', i: j >= 0 ? j : 0 }; }
+  xsPaintFocus();
+}
+function xsRenderResults(){
+  const q = document.getElementById('xsInput').value;
+  const box = document.getElementById('xsResults');
+  const hl = (t) => { const qn = xsNorm(q).trim(); if(!qn) return t; const i = xsNorm(t).indexOf(qn); return i < 0 ? t : t.slice(0, i) + '<b>' + t.slice(i, i + qn.length) + '</b>' + t.slice(i + qn.length); };
+  if(!q.trim()){
+    const pick = ['Credere', 'Korea', 'Pokémon cards', 'Work experience', 'Resume'];
+    xsResults = pick.map(t => XS_INDEX.find(e => e.title === t)).filter(Boolean);
+  } else xsResults = xsSearch(q);
+  const label = q.trim() ? (xsResults.length ? 'Results' : '') : 'Try searching for';
+  box.innerHTML = (label ? `<div class="xs-label">${label}</div>` : '') + (xsResults.length ? xsResults.map((e, i) => `
+    <div class="xs-row" data-i="${i}">
+      <div class="ic" style="${e.img ? `background-image:${e.img.replace(/"/g, "'")}` : `background:${XS_COL[e.kind] || '#374151'}`}">${e.img ? '' : XS_IC[e.kind] || ''}</div>
+      <div class="t">${hl(e.title)}${e.sub ? `<small>${e.sub}</small>` : ''}</div>
+      <span class="cat">${e.cat}</span>
+    </div>`).join('') : `<div class="xs-empty">Nothing matches “${q.replace(/</g, '&lt;')}”. Try a section like Projects, Photography or Hobbies.</div>`);
+  box.querySelectorAll('.xs-row').forEach(el => {
+    const i = +el.dataset.i;
+    el.addEventListener('mouseenter', () => xsSetFocus({ type:'res', i }));
+    el.addEventListener('mousedown', e => e.preventDefault());
+    el.addEventListener('click', () => xsGo(xsResults[i]));
+  });
+  if(xsFocus.type === 'res' && xsFocus.i >= xsResults.length) xsFocus = xsResults.length ? { type:'res', i:xsResults.length - 1 } : { type:'key', i:xsLastKey };
+  xsPaintFocus();
+}
+function xsSetFocus(f){ xsFocus = f; if(f.type === 'key') xsLastKey = f.i; xsPaintFocus(); }
+function xsPaintFocus(){
+  document.querySelectorAll('#xsKb .xs-k').forEach(el => el.classList.toggle('f', xsFocus.type === 'key' && +el.dataset.i === xsFocus.i));
+  document.querySelectorAll('#xsResults .xs-row').forEach(el => el.classList.toggle('f', xsFocus.type === 'res' && +el.dataset.i === xsFocus.i));
+}
+function xsInsert(text){
+  const inp = document.getElementById('xsInput');
+  const s = inp.selectionStart ?? inp.value.length, e = inp.selectionEnd ?? inp.value.length;
+  if(inp.value.length - (e - s) + text.length > inp.maxLength) return;
+  inp.value = inp.value.slice(0, s) + text + inp.value.slice(e);
+  inp.setSelectionRange(s + text.length, s + text.length);
+  xsRenderResults();
+}
+function xsPress(k){
+  const inp = document.getElementById('xsInput');
+  if(k.id === 'ch'){
+    const ch = (/[a-z]/i.test(k.ch) && !xsShift) ? k.ch.toLowerCase() : k.ch;
+    xsInsert(ch);
+    if(xsShift && /[a-z]/i.test(k.ch)){ xsShift = false; xsRenderKeys(); }
+  }
+  else if(k.id === 'space') xsInsert(' ');
+  else if(k.id === 'bksp'){
+    const s = inp.selectionStart, e = inp.selectionEnd;
+    if(s !== e){ inp.value = inp.value.slice(0, s) + inp.value.slice(e); inp.setSelectionRange(s, s); }
+    else if(s > 0){ inp.value = inp.value.slice(0, s - 1) + inp.value.slice(s); inp.setSelectionRange(s - 1, s - 1); }
+    if(!inp.value){ xsShift = true; xsRenderKeys(); }
+    xsRenderResults();
+  }
+  else if(k.id === 'clear'){ inp.value = ''; xsShift = true; xsRenderKeys(); xsRenderResults(); }
+  else if(k.id === 'shift'){ xsShift = !xsShift; xsRenderKeys(); }
+  else if(k.id === 'sym'){ xsSym = !xsSym; xsRenderKeys(); }
+  else if(k.id === 'left' || k.id === 'right'){
+    const p = Math.max(0, Math.min(inp.value.length, inp.selectionStart + (k.id === 'left' ? -1 : 1)));
+    inp.setSelectionRange(p, p);
+  }
+  else if(k.id === 'enter'){ if(xsResults[0]) xsGo(xsResults[0]); }
+  inp.focus();
+}
+function xsMove(dx, dy){
+  if(xsFocus.type === 'res'){
+    if(dy < 0) xsSetFocus({ type:'res', i:Math.max(0, xsFocus.i - 1) });
+    else if(dy > 0){ if(xsFocus.i < xsResults.length - 1) xsSetFocus({ type:'res', i:xsFocus.i + 1 }); else xsSetFocus({ type:'key', i:xsLastKey }); }
+    return;
+  }
+  const k = xsKeys[xsFocus.i];
+  const cx = k.c + (k.cs || 1) / 2, cy = k.r + (k.rs || 1) / 2;
+  let best = -1, bd = 1e9;
+  xsKeys.forEach((o, i) => {
+    if(i === xsFocus.i) return;
+    const ox = o.c + (o.cs || 1) / 2, oy = o.r + (o.rs || 1) / 2;
+    const ddx = ox - cx, ddy = oy - cy;
+    if(dx && Math.sign(ddx) !== dx) return; if(dy && Math.sign(ddy) !== dy) return;
+    if(dx && Math.abs(ddy) >= (k.rs || 1) / 2 + (o.rs || 1) / 2) return;
+    if(dy && Math.abs(ddx) >= (k.cs || 1) / 2 + (o.cs || 1) / 2) return;
+    const d = dx ? Math.abs(ddx) + 3 * Math.abs(ddy) : Math.abs(ddy) + 3 * Math.abs(ddx);
+    if(d < bd){ bd = d; best = i; }
+  });
+  if(best >= 0) xsSetFocus({ type:'key', i:best });
+  else if(dy < 0 && xsResults.length) xsSetFocus({ type:'res', i:xsResults.length - 1 });
+}
+function xsGo(entry){
+  if(!entry) return;
+  closeSearch();
+  xsReset();
+  entry.run();
+}
+function openSearch(){
+  XS_INDEX = xsIndex();
+  const xs = document.getElementById('xs');
+  const inp = document.getElementById('xsInput');
+  inp.value = ''; xsShift = true; xsSym = false;
+  xsKeys = xsBuildKeys(); xsFocus = { type:'key', i:xsKeys.findIndex(k => k.ch === 'Y') }; xsLastKey = xsFocus.i;
+  xsRenderKeys(); xsRenderResults();
+  xs.classList.add('on');
+  setTimeout(() => inp.focus(), 30);
+}
+function closeSearch(){ document.getElementById('xs').classList.remove('on'); }
+
+(function(){
+  const xs = document.createElement('div');
+  xs.className = 'xs'; xs.id = 'xs';
+  xs.innerHTML = `
+    <div class="xs-panel">
+      <div class="xs-head"><div class="xs-title">Search Yash’s dashboard (MAX 30 characters):</div>
+        <span class="xs-close" onclick="closeSearch()"><span class="bc b">B</span>Back</span></div>
+      <input class="xs-input" id="xsInput" maxlength="30" autocomplete="off" spellcheck="false" placeholder="Try Pokémon, Credere, Korea, Delta…">
+      <div class="xs-results" id="xsResults"></div>
+      <div class="xs-kb" id="xsKb"></div>
+    </div>`;
+  xs.addEventListener('mousedown', e => { if(e.target === xs) closeSearch(); });
+  document.getElementById('stage').appendChild(xs);
+  const inp = document.getElementById('xsInput');
+  inp.addEventListener('input', () => { if(inp.value.length === 1 && xsShift){ xsShift = false; xsRenderKeys(); } xsRenderResults(); });
+
+  // entry points: home "search" link and tab, plus a search button on the modern top bars
+  document.querySelectorAll('.topnav span').forEach(s => { if(s.textContent.trim() === 'search') s.onclick = openSearch; });
+  const tab = document.querySelector('.search-tab'); if(tab) tab.onclick = openSearch;
+  const ic = '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>';
+  document.querySelectorAll('.rc-icons').forEach(row => row.insertAdjacentHTML('afterbegin', `<div class="rc-ibtn" onclick="openSearch()">${ic}<span class="tip">Search</span></div>`));
+})();
+
+document.addEventListener('keydown', e => {
+  const xs = document.getElementById('xs');
+  if(!xs.classList.contains('on')){
+    const typing = /input|textarea/i.test((document.activeElement || {}).tagName || '');
+    if(e.key === '/' && !typing){ e.preventDefault(); openSearch(); }
+    return;
+  }
+  e.stopImmediatePropagation();
+  const inp = document.getElementById('xsInput');
+  if(document.activeElement !== inp) inp.focus();
+  switch(e.key){
+    case 'Escape': e.preventDefault(); closeSearch(); break;
+    case 'ArrowLeft': e.preventDefault(); xsMove(-1, 0); break;
+    case 'ArrowRight': e.preventDefault(); xsMove(1, 0); break;
+    case 'ArrowUp': e.preventDefault(); xsMove(0, -1); break;
+    case 'ArrowDown': e.preventDefault(); xsMove(0, 1); break;
+    case 'Enter':
+      e.preventDefault();
+      if(xsFocus.type === 'res') xsGo(xsResults[xsFocus.i]);
+      else if(xsKeyNavUsed) xsPress(xsKeys[xsFocus.i]);
+      else if(xsResults[0]) xsGo(xsResults[0]);
+      break;
+  }
+  xsKeyNavUsed = /^Arrow/.test(e.key) ? true : (e.key.length === 1 || e.key === 'Backspace') ? false : xsKeyNavUsed;
+}, true);
+let xsKeyNavUsed = false;
 </script>
 </body>
 </html>
