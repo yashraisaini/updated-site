@@ -1816,8 +1816,7 @@
   }
   .xa:nth-child(2){ animation-delay:.06s; } .xa:nth-child(3){ animation-delay:.12s; } .xa:nth-child(4){ animation-delay:.18s; }
   @keyframes xaIn{ from{ opacity:0; transform:translateX(16px); } to{ opacity:1; transform:none; } }
-  .xa:hover{ background:linear-gradient(180deg,#0f8a1a 0%, #0b7b16 50%, #097012 100%); color:#fff; transform:translateX(4px);
-    box-shadow:0 0 0 4px #96e02c, 0 10px 24px rgba(0,0,0,0.35); }
+
   .xa .badge{
     height:96px; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center;
     background:linear-gradient(180deg,#4f8f17,#1f4a03); color:#fff; box-shadow:inset 0 2px 2px rgba(255,255,255,0.3);
@@ -1827,7 +1826,7 @@
   .xa .badge b.sm{ font-size:26px; }
   .xa .badge svg{ width:44px; height:44px; fill:#fff; }
   .xa p{ font-size:23px; line-height:1.45; }
-  .xa:hover .badge{ background:linear-gradient(180deg,#cfe75a,#7cb914 70%,#58910a); color:#1d3a04; }
+
 
   /* throwbacks */
   .xd.gal{ grid-template-columns:1fr; }
@@ -1941,6 +1940,21 @@
   .rb-tag{ display:inline-block; margin-top:22px; padding:8px 16px; border-radius:999px; font-size:19px; font-weight:600;
     background:rgba(29,66,138,0.35); border:1px solid rgba(200,16,46,0.6); width:fit-content; }
   @media (prefers-reduced-motion: reduce){ .rb-pol{ transition:none; } }
+
+  /* My Pins / Throwbacks viewer arrows */
+  .lb-arrow{
+    position:absolute; top:50%; margin-top:-56px; width:96px; height:96px; border-radius:50%; cursor:pointer; z-index:3;
+    display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 35% 28%, #b9e86a, #6fb31c 58%, #3f7d0f);
+    box-shadow:0 10px 26px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.55);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .lb-arrow:hover{ transform:scale(1.08); box-shadow:0 0 0 4px rgba(150,224,44,0.6), 0 12px 30px rgba(0,0,0,0.55), inset 0 2px 3px rgba(255,255,255,0.55); }
+  .lb-arrow svg{ width:44px; height:44px; stroke:#fff; fill:none; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+  .lb-arrow.prev{ left:70px; } .lb-arrow.next{ right:70px; }
+  .pin-count{ position:absolute; right:160px; bottom:60px; font-family:'Segoe UI',Arial,sans-serif; font-size:28px; color:rgba(255,255,255,0.85); }
+  .lb-lr{ display:inline-flex; align-items:center; gap:8px; }
+  .bc.lbk{ width:auto; padding:0 12px; border-radius:10px; font-size:18px; background:linear-gradient(180deg,#f2f3f5,#c9cdd3); color:#2b3036; text-shadow:none; }
 </style>
 </head>
 <body>
@@ -2077,7 +2091,7 @@
 
     <div class="nxe-hints">
       <span><span class="bc a">A</span>Select</span>
-      <span style="cursor:pointer" onclick="go('home')"><span class="bc b">B</span>Back</span>
+      <span style="cursor:pointer" onclick="goBack()"><span class="bc b">B</span>Back</span>
     </div>
     <div class="orb" id="orb"></div>
 
@@ -2129,7 +2143,7 @@
 
     <div class="nxe-hints">
       <span><span class="bc a">A</span>Select</span>
-      <span style="cursor:pointer" onclick="go('home')"><span class="bc b">B</span>Back</span>
+      <span style="cursor:pointer" onclick="goBack()"><span class="bc b">B</span>Back</span>
     </div>
     <div class="orb"></div>
 
@@ -2201,7 +2215,7 @@
 
     <div class="ph-hints">
       <span><span class="bc a">A</span>Open album</span>
-      <span style="cursor:pointer" onclick="go('home')"><span class="bc b">B</span>Back</span>
+      <span style="cursor:pointer" onclick="goBack()"><span class="bc b">B</span>Back</span>
     </div>
 
     <!-- full album gallery -->
@@ -2267,7 +2281,7 @@
     <div class="mark"></div>
     <div class="pf-hints">
       <span><span class="bc a">A</span>Select</span>
-      <span style="cursor:pointer" onclick="go('home')"><span class="bc b">B</span>Back</span>
+      <span style="cursor:pointer" onclick="goBack()"><span class="bc b">B</span>Back</span>
     </div>
   </div>
 
@@ -2346,10 +2360,23 @@ document.addEventListener('mousemove', e=>{
 });
 
 /* ---------------- screen router ---------------- */
+/* history: Back returns to the screen you came from; Home clears the trail */
+const NAV_STACK = [];
+let navCurrent = 'home', navReturning = false, navLastBack = 0;
 function go(name){
+  if(!navReturning && name !== navCurrent){
+    if(name === 'home') NAV_STACK.length = 0; else NAV_STACK.push(navCurrent);
+  }
+  navCurrent = name;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   const el = document.getElementById('scr-' + name);
   (el || document.getElementById('scr-home')).classList.add('on');
+}
+function goBack(){
+  const ev = window.event;
+  if(ev && ev.type === 'keydown'){ if(ev._navHandled) return; ev._navHandled = true; }
+  const now = performance.now(); if(now - navLastBack < 60) return; navLastBack = now;
+  navReturning = true; go(NAV_STACK.pop() || 'home'); navReturning = false;
 }
 
 /* ---------------- toasts ---------------- */
@@ -2412,7 +2439,7 @@ showPane('about');
 /* B / Esc backs out of the about screen */
 document.addEventListener('keydown', e => {
   if(!document.getElementById('scr-me').classList.contains('on')) return;
-  if(e.key === 'Escape' || e.key.toLowerCase() === 'b') go('home');
+  if(e.key === 'Escape' || e.key.toLowerCase() === 'b') goBack();
 });
 
 /* ---------------- work experience data ---------------- */
@@ -2582,7 +2609,7 @@ document.addEventListener('keydown', e=>{
   if(e.key==='Escape' || e.key.toLowerCase()==='b'){
     if(anyLightboxOpen()) closeLightbox();
     else if(document.getElementById('xoverlay').classList.contains('on')) closeCard();
-    else go('home');
+    else goBack();
   }
 });
 
@@ -3121,7 +3148,7 @@ document.addEventListener('keydown', e=>{
   if(!document.getElementById('scr-proj').classList.contains('on')) return;
   if(e.key==='Escape' || e.key.toLowerCase()==='b'){
     if(document.getElementById('poverlay').classList.contains('on')) closeProj();
-    else go('home');
+    else goBack();
   }
 });
 let tt3;
@@ -3293,7 +3320,7 @@ document.addEventListener('keydown', e=>{
   if(document.getElementById('photolb').classList.contains('on')) return;
   if(e.key==='Escape' || e.key.toLowerCase()==='b'){
     if(document.getElementById('galov').classList.contains('on')) closeAlbum();
-    else go('home');
+    else goBack();
   }
 });
 buildAlbums();
@@ -3866,7 +3893,7 @@ document.addEventListener('keydown', e => {
   if(!document.getElementById('scr-recent').classList.contains('on')) return;
   const detail = document.getElementById('rcDetail').classList.contains('on');
   const k = e.key;
-  if(k === 'Escape' || k.toLowerCase() === 'b'){ detail ? rcCloseDetail() : go('home'); return; }
+  if(k === 'Escape' || k.toLowerCase() === 'b'){ detail ? rcCloseDetail() : goBack(); return; }
   if(detail) return;
   const t = rcTiles[rcFocus];
   const cx = el => el.offsetLeft + el.offsetWidth/2;
@@ -3975,7 +4002,7 @@ function xClock(){
   const ic = scr.querySelector('.rc-icons');
   if(ic){ ic.innerHTML = ['home','proj','photo','recent','me'].map(k =>
     `<div class="rc-ibtn${k === 'recent' ? ' cur' : ''}" onclick="go('${k}')">${X_ICONS[k]}<span class="tip">${X_TIPS[k]}</span></div>`).join(''); }
-  scr.insertAdjacentHTML('beforeend', xHints("go('home')", 'Select'));
+  scr.insertAdjacentHTML('beforeend', xHints("goBack()", 'Select'));
   document.getElementById('rcDetail').insertAdjacentHTML('beforeend',
     `<div class="x-backbar" style="position:absolute">${xHints('rcCloseDetail()')}</div>`);
   document.getElementById('rcDScroll').style.paddingBottom = '170px';
@@ -3988,7 +4015,7 @@ function xClock(){
   const host = document.createElement('div'); host.className = 'x-top-host';
   host.innerHTML = xTopBar('photo', ALBUMS.length + ' albums · ' + ALBUMS.reduce((n,a) => n + (a.photos ? a.photos.length : 0), 0) + ' photos');
   scr.insertBefore(host, scr.querySelector('.ph-lead'));
-  scr.insertAdjacentHTML('beforeend', `<div class="x-top-host">${xHints("go('home')", 'Open album')}</div>`);
+  scr.insertAdjacentHTML('beforeend', `<div class="x-top-host">${xHints("goBack()", 'Open album')}</div>`);
   // album page and viewer get their own Back hints
   const gal = document.getElementById('galov');
   gal.insertAdjacentHTML('beforeend', `<div class="x-backbar">${xHints('closeAlbum()', 'View photo')}</div>`);
@@ -4113,7 +4140,7 @@ let pxTiles = [], pxFocus = 0, pxFlip = false;
     ${xTopBar('proj', real.length + ' projects')}
     <div class="rc-caption" id="pxCaption" style="top:214px"><div class="k"></div><div class="t"></div><div class="s"></div></div>
     <div id="pxTiles"></div>
-    ${xHints("go('home')", 'Select')}`;
+    ${xHints("goBack()", 'Select')}`;
   scr.insertBefore(layer, document.getElementById('poverlay'));
   const rc = document.getElementById('rcContour'); if(rc) document.getElementById('pxContour').innerHTML = rc.innerHTML;
   pxBuild();
@@ -4393,6 +4420,43 @@ document.addEventListener('keydown', e => {
   if(e.key === 'ArrowRight' || key === 'e' || key === ']'){ xdGo((i + 1) % n); e.stopImmediatePropagation(); e.preventDefault(); }
   else if(e.key === 'ArrowLeft' || key === 'q' || key === '['){ xdGo((i - 1 + n) % n); e.stopImmediatePropagation(); e.preventDefault(); }
   else if(e.key === 'Enter'){ e.stopImmediatePropagation(); e.preventDefault(); }
+}, true);
+</script>
+
+<script>
+/* My Pins / Throwbacks viewer: previous and next */
+const LB_SEQ = ['pin-1','pin-2','pin-3','pin-5','pin-6'];
+let lbIdx = 0;
+(function(){
+  ['lightbox','lightbox2'].forEach(id => {
+    const box = document.getElementById(id); if(!box) return;
+    box.insertAdjacentHTML('beforeend', `
+      <div class="lb-arrow prev" onclick="event.stopPropagation(); lbStep(-1)"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div>
+      <div class="lb-arrow next" onclick="event.stopPropagation(); lbStep(1)"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
+      <div class="pin-count"></div>`);
+    const hints = box.querySelector('.lb-hints');
+    if(hints) hints.insertAdjacentHTML('afterbegin', '<span class="lb-lr" onclick="event.stopPropagation()"><span class="bc lbk">LB</span><span class="bc lbk">RB</span>Previous / next</span>');
+  });
+})();
+const _openLightbox = openLightbox;
+openLightbox = function(cls){
+  lbIdx = Math.max(0, LB_SEQ.indexOf(cls));
+  _openLightbox(cls);
+  lbRefresh();
+};
+function lbStep(d){
+  lbIdx = (lbIdx + d + LB_SEQ.length) % LB_SEQ.length;
+  ['lbimg','lbimg2'].forEach(id => { const el = document.getElementById(id); if(el) el.className = 'lb-img ' + LB_SEQ[lbIdx]; });
+  lbRefresh();
+}
+function lbRefresh(){
+  document.querySelectorAll('.lightbox .pin-count').forEach(c => c.textContent = (lbIdx + 1) + ' of ' + LB_SEQ.length);
+}
+document.addEventListener('keydown', e => {
+  if(!anyLightboxOpen()) return;
+  const k = e.key.toLowerCase();
+  if(e.key === 'ArrowRight' || k === 'e' || k === ']'){ lbStep(1); e.preventDefault(); e.stopImmediatePropagation(); }
+  else if(e.key === 'ArrowLeft' || k === 'q' || k === '['){ lbStep(-1); e.preventDefault(); e.stopImmediatePropagation(); }
 }, true);
 </script>
 </body>
