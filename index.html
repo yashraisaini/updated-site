@@ -1955,6 +1955,10 @@
   .pin-count{ position:absolute; right:160px; bottom:60px; font-family:'Segoe UI',Arial,sans-serif; font-size:28px; color:rgba(255,255,255,0.85); }
   .lb-lr{ display:inline-flex; align-items:center; gap:8px; }
   .bc.lbk{ width:auto; padding:0 12px; border-radius:10px; font-size:18px; background:linear-gradient(180deg,#f2f3f5,#c9cdd3); color:#2b3036; text-shadow:none; }
+
+  .rc-zoom .lb-arrow, .rc-zoom .pin-count{ display:none; }
+  .rc-zoom.multi .lb-arrow, .rc-zoom.multi .pin-count{ display:flex; }
+  .rc-zoom .pin-count{ bottom:44px; color:rgba(255,255,255,0.85); }
 </style>
 </head>
 <body>
@@ -3871,16 +3875,41 @@ function rcOpenDetail(c){
   document.getElementById('rcDetail').classList.add('on');
 }
 
+let rcZoomList = [], rcZoomIdx = 0;
 function rcZoom(src){
   let z = document.getElementById('rcZoom');
   if(!z){
     z = document.createElement('div'); z.id = 'rcZoom'; z.className = 'rc-zoom';
-    z.innerHTML = '<img alt=""><div class="x-hints"><span class="clk" onclick="rcZoomClose()"><span class="bc b">B</span>Back</span></div>';
+    z.innerHTML = '<img alt="">'
+      + '<div class="lb-arrow prev" onclick="event.stopPropagation(); rcZoomStep(-1)"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div>'
+      + '<div class="lb-arrow next" onclick="event.stopPropagation(); rcZoomStep(1)"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>'
+      + '<div class="pin-count"></div>'
+      + '<div class="x-hints"><span class="clk" onclick="rcZoomClose()"><span class="bc b">B</span>Back</span></div>';
     z.addEventListener('click', e => { if(e.target === z || e.target.tagName === 'IMG') rcZoomClose(); });
     document.getElementById('rcDetail').appendChild(z);
   }
-  z.querySelector('img').src = src; z.classList.add('on');
+  // next/previous only for the NBA All-Star photos
+  const ev = window.event, card = ev && ev.target && ev.target.closest ? ev.target.closest('.rb-card') : null;
+  rcZoomList = card ? [...card.querySelectorAll('.rb-pol img')].map(i => i.getAttribute('src')) : [src];
+  rcZoomIdx = Math.max(0, rcZoomList.indexOf(src));
+  z.classList.toggle('multi', rcZoomList.length > 1);
+  rcZoomShow(); z.classList.add('on');
 }
+function rcZoomShow(){
+  const z = document.getElementById('rcZoom');
+  z.querySelector('img').src = rcZoomList[rcZoomIdx];
+  z.querySelector('.pin-count').textContent = (rcZoomIdx + 1) + ' of ' + rcZoomList.length;
+}
+function rcZoomStep(d){
+  if(rcZoomList.length < 2) return;
+  rcZoomIdx = (rcZoomIdx + d + rcZoomList.length) % rcZoomList.length; rcZoomShow();
+}
+document.addEventListener('keydown', e => {
+  const z = document.getElementById('rcZoom');
+  if(!z || !z.classList.contains('on') || rcZoomList.length < 2) return;
+  if(e.key === 'ArrowRight'){ rcZoomStep(1); e.preventDefault(); e.stopImmediatePropagation(); }
+  else if(e.key === 'ArrowLeft'){ rcZoomStep(-1); e.preventDefault(); e.stopImmediatePropagation(); }
+}, true);
 function rcZoomClose(){ const z = document.getElementById('rcZoom'); if(z) z.classList.remove('on'); }
 document.addEventListener('keydown', e => {
   const z = document.getElementById('rcZoom');
